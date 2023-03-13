@@ -32,4 +32,4 @@ jobs:
           aws s3 cp ./pkg/listing-getter.zip s3://property-scraping-development-lambda-code
       - name: Publish lambda function
         run: |
-          aws lambda update-function-code --function-name listing-getter --s3-bucket property-scraping-${{ inputs.stage }}-lambda-code --s3-key listing-getter.zip --publish
+          aws lambda update-function-code --function-name listing-getter --s3-bucket property-scraping-${{ inputs.stage }}-lambda-code --s3-key listing-getter.zip --publish | jq 'del(.Environment)'
