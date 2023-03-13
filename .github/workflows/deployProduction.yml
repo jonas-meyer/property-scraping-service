@@ -1,0 +1,8 @@
+name: deploy-to-prod
+on: workflow_dispatch
+jobs:
+  deploy-to-prod:
+    uses: ./.github/workflows/abstractDeploy.yml
+    with:
+      stage: production
+    secrets: inherit

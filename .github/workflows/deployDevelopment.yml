@@ -1,0 +1,11 @@
+name: deploy-to-sandbox
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy-to-sandbox:
+    uses: ./.github/workflows/abstractDeploy.yml
+    with:
+      stage: development
+    secrets: inherit
