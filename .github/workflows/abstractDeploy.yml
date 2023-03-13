@@ -27,15 +27,9 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: "eu-west-2"
-      - name: Deploy Lambda to AWS
-        uses: appleboy/lambda-action@master
-        with:
-          # gets secrets set in env by `configure-aws-credentials`
-          aws_access_key_id: ${{ env.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ env.AWS_SECRET_ACCESS_KEY }}
-          aws_region: ${{ env.AWS_REGION }}
-          function_name: "listing-getter"
-          s3_bucket: "arn:aws:s3:::property-scraping-development-lambda-code"
-          s3_key: "listing-getter.zip"
-          handler: main
-          zip_file: ./pkg/listing-getter.zip
+      - name: Upload lambda code to s3
+        run: |
+          aws s3 cp ./pkg/listing-getter.zip s3://property-scraping-development-lambda-code
+      - name: Publish lambda function
+        run: |
+          aws lambda update-function-code --function-name listing-getter --s3-bucket property-scraping-${{ inputs.stage }}-lambda-code --s3-key listing-getter.zip --publish
