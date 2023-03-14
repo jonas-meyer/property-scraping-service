@@ -40,7 +40,7 @@ func handler(ctx context.Context) error {
 		go func(obj goopla.Listing) {
 			defer wg.Done()
 
-			jsonBytes, err := json.Marshal(obj)
+			jsonBytes, err := json.MarshalIndent(obj, "", "  ")
 			if err != nil {
 				fmt.Printf("Error marshaling JSON object: %v\n", err)
 				return
