@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/jonas-meyer/goopla/goopla"
+	"github.com/spf13/viper"
 	"sync"
 )
 
@@ -21,6 +22,11 @@ func handler(ctx context.Context) error {
 		return fmt.Errorf("error initializing AWS session: %v", err)
 	}
 	s3Session := s3.New(awsSession)
+
+	err = viper.BindEnv("lambda_environment")
+	if err != nil {
+		return err
+	}
 
 	client, err := goopla.NewClient(goopla.Credentials{}, goopla.FromEnv)
 	if err != nil {
@@ -47,7 +53,7 @@ func handler(ctx context.Context) error {
 			}
 
 			_, err = s3Session.PutObjectWithContext(ctx, &s3.PutObjectInput{
-				Bucket: aws.String("property-scraping-development-listing-upload"), //TODO set bucket dynamically depending on environment                                                                          // Change this to your S3 bucket name
+				Bucket: aws.String(fmt.Sprintf("property-scraping-%s-listing-upload", viper.GetString("lambda_environment"))),
 				Key:    aws.String(fmt.Sprintf("%s/%s/%s.json", listingOptions.Area, obj.Status, obj.ListingID)),
 				Body:   bytes.NewReader(jsonBytes),
 			})
