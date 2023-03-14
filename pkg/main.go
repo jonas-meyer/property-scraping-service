@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/jonas-meyer/goopla/goopla"
+	"sync"
 )
 
 func handler(ctx context.Context) error {
@@ -32,9 +33,13 @@ func handler(ctx context.Context) error {
 		return err
 	}
 
+	var wg sync.WaitGroup
+	wg.Add(listings.ListingAmount)
+
 	for _, listing := range listings.Listings {
 		go func(obj goopla.Listing) {
-			// Convert the JSON object to a byte slice
+			defer wg.Done()
+
 			jsonBytes, err := json.Marshal(obj)
 			if err != nil {
 				fmt.Printf("Error marshaling JSON object: %v\n", err)
@@ -54,6 +59,11 @@ func handler(ctx context.Context) error {
 			fmt.Printf("Uploaded %s.json to S3\n", obj.ListingID)
 		}(listing)
 	}
+
+	wg.Wait()
+
+	fmt.Println("All uploads complete")
+
 	return nil
 }
 
