@@ -27,14 +27,14 @@ func handler(ctx context.Context) error {
 		return err
 	}
 
-	listingOptions := &goopla.ListingOptions{Area: "Oxford", Minimum_beds: 2, Maximum_beds: 2, Order_by: "age", Page_size: 30}
+	listingOptions := &goopla.ListingOptions{Area: "Oxford", Minimum_beds: 2, Maximum_beds: 2, Order_by: "age", Page_size: 10}
 	listings, _, err := client.Listing.Get(ctx, listingOptions)
 	if err != nil {
 		return err
 	}
 
 	var wg sync.WaitGroup
-	wg.Add(listings.ListingAmount)
+	wg.Add(len(listings.Listings))
 
 	for _, listing := range listings.Listings {
 		go func(obj goopla.Listing) {
