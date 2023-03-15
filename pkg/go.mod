@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/aws/aws-lambda-go v1.38.0
 	github.com/aws/aws-sdk-go v1.44.220
-	github.com/jonas-meyer/goopla v0.0.0-20230314172912-a17269e47601
+	github.com/jonas-meyer/goopla v0.0.0-20230315111412-3d144c68304f
 	github.com/spf13/viper v1.15.0
 )
 
