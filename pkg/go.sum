@@ -136,6 +136,8 @@ github.com/jmespath/go-jmespath/internal/testify v1.5.1 h1:shLQSRRSCCPj3f2gpwzGw
 github.com/jmespath/go-jmespath/internal/testify v1.5.1/go.mod h1:L3OGu8Wl2/fWfCI6z80xFu9LTZmf1ZRjMHUOPmWr69U=
 github.com/jonas-meyer/goopla v0.0.0-20230313225312-5b00c6d85304 h1:Gfcprhb+xzBA/+w+nae5iMVMj04793qHMhA1gLbLFqg=
 github.com/jonas-meyer/goopla v0.0.0-20230313225312-5b00c6d85304/go.mod h1:fJN2VVWAZYz2b2w/fuIFowIAIcgZUICKNhmRmkhX/gc=
+github.com/jonas-meyer/goopla v0.0.0-20230314172912-a17269e47601 h1:jb3nJaXv4RatYSdrivGZQJGOrs8TBrao4Krr4fpa/6Q=
+github.com/jonas-meyer/goopla v0.0.0-20230314172912-a17269e47601/go.mod h1:fJN2VVWAZYz2b2w/fuIFowIAIcgZUICKNhmRmkhX/gc=
 github.com/jstemmer/go-junit-report v0.0.0-20190106144839-af01ea7f8024/go.mod h1:6v2b51hI/fHJwM22ozAgKL4VKDeJcHhJFhtBdhmNjmU=
 github.com/jstemmer/go-junit-report v0.9.1/go.mod h1:Brl9GWCQeLvo8nXZwPNNblvFj/XSXhF0NWZEnDohbsk=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=

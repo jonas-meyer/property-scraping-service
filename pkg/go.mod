@@ -5,7 +5,8 @@ go 1.20
 require (
 	github.com/aws/aws-lambda-go v1.38.0
 	github.com/aws/aws-sdk-go v1.44.220
-	github.com/jonas-meyer/goopla v0.0.0-20230313225312-5b00c6d85304
+	github.com/jonas-meyer/goopla v0.0.0-20230314172912-a17269e47601
+	github.com/spf13/viper v1.15.0
 )
 
 require (
@@ -23,7 +24,6 @@ require (
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/spf13/viper v1.15.0 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
 	golang.org/x/sys v0.3.0 // indirect
 	golang.org/x/text v0.5.0 // indirect
