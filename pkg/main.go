@@ -29,33 +29,12 @@ func init() {
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
 }
 
-func handler(ctx context.Context) error {
-	awsSession, err := session.NewSession(&aws.Config{
-		Region: aws.String("eu-west-2"),
-	})
+func handler(ctx context.Context, s3Client s3.S3, gooplaClient goopla.Client, bucketName string, listingOptions goopla.ListingOptions) error {
+	listings, _, err := gooplaClient.Listing.Get(ctx, &listingOptions)
 	if err != nil {
-		log.Error().Err(err).Msg("error initializing AWS session")
-		return err
-
-	}
-	s3Session := s3.New(awsSession)
-
-	err = viper.BindEnv("lambda_environment")
-	if err != nil {
+		log.Error().Err(err).Msg("error getting listings")
 		return err
 	}
-
-	client, err := goopla.NewClient(goopla.Credentials{}, goopla.FromEnv)
-	if err != nil {
-		return err
-	}
-
-	listingOptions := &goopla.ListingOptions{Area: "Oxford", Minimum_beds: 2, Maximum_beds: 2, Order_by: "age", Page_size: 10}
-	listings, _, err := client.Listing.Get(ctx, listingOptions)
-	if err != nil {
-		return err
-	}
-	bucketName := fmt.Sprintf("property-scraping-%s-listing-upload", viper.GetString("lambda_environment"))
 
 	var wg sync.WaitGroup
 	wg.Add(len(listings.Listings))
@@ -72,7 +51,7 @@ func handler(ctx context.Context) error {
 
 			fileName := fmt.Sprintf("%s/%s/%s.json", listingOptions.Area, obj.Status, obj.ListingID)
 
-			_, err = s3Session.PutObjectWithContext(ctx, &s3.PutObjectInput{
+			_, err = s3Client.PutObjectWithContext(ctx, &s3.PutObjectInput{
 				Bucket: aws.String(bucketName),
 				Key:    aws.String(fileName),
 				Body:   bytes.NewReader(jsonBytes),
@@ -82,7 +61,7 @@ func handler(ctx context.Context) error {
 				return
 			}
 
-			log.Info().Msgf("Uploaded %s to S3", fileName)
+			log.Info().Msgf("Uploaded listing: %s to S3", fileName)
 		}(listing)
 	}
 
@@ -94,5 +73,27 @@ func handler(ctx context.Context) error {
 }
 
 func main() {
-	lambda.Start(handler)
+	awsSession, err := session.NewSession(&aws.Config{
+		Region: aws.String("eu-west-2"),
+	})
+	if err != nil {
+		log.Error().Err(err).Msg("error initializing AWS session")
+		return
+	}
+	s3Session := s3.New(awsSession)
+
+	client, err := goopla.NewClient(goopla.Credentials{}, goopla.FromEnv)
+	if err != nil {
+		log.Error().Err(err).Msg("error creating Goopla client")
+		return
+	}
+
+	_ = viper.BindEnv("lambda_environment")
+
+	bucketName := fmt.Sprintf("property-scraping-%s-listing-upload", viper.GetString("lambda_environment"))
+	listingOptions := &goopla.ListingOptions{Area: "Oxford", Minimum_beds: 2, Maximum_beds: 2, Order_by: "age", Page_size: 10}
+
+	lambda.Start(func(ctx context.Context) error {
+		return handler(ctx, *s3Session, *client, bucketName, *listingOptions)
+	})
 }
