@@ -10,16 +10,33 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/jonas-meyer/goopla/goopla"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
+	"os"
 	"sync"
 )
+
+func init() {
+	// Set log level
+	logLevel, err := zerolog.ParseLevel(os.Getenv("LOG_LEVEL"))
+	if err != nil {
+		logLevel = zerolog.InfoLevel
+	}
+	zerolog.SetGlobalLevel(logLevel)
+
+	// Set output to stdout for Lambda
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
+}
 
 func handler(ctx context.Context) error {
 	awsSession, err := session.NewSession(&aws.Config{
 		Region: aws.String("eu-west-2"),
 	})
 	if err != nil {
-		return fmt.Errorf("error initializing AWS session: %v", err)
+		log.Error().Err(err).Msg("error initializing AWS session")
+		return err
+
 	}
 	s3Session := s3.New(awsSession)
 
@@ -38,6 +55,7 @@ func handler(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	bucketName := fmt.Sprintf("property-scraping-%s-listing-upload", viper.GetString("lambda_environment"))
 
 	var wg sync.WaitGroup
 	wg.Add(len(listings.Listings))
@@ -48,27 +66,29 @@ func handler(ctx context.Context) error {
 
 			jsonBytes, err := json.MarshalIndent(&obj, "", "  ")
 			if err != nil {
-				fmt.Printf("Error marshaling JSON object: %v\n", err)
+				log.Error().Err(err).Msg("Error marshaling JSON object")
 				return
 			}
 
+			fileName := fmt.Sprintf("%s/%s/%s.json", listingOptions.Area, obj.Status, obj.ListingID)
+
 			_, err = s3Session.PutObjectWithContext(ctx, &s3.PutObjectInput{
-				Bucket: aws.String(fmt.Sprintf("property-scraping-%s-listing-upload", viper.GetString("lambda_environment"))),
-				Key:    aws.String(fmt.Sprintf("%s/%s/%s.json", listingOptions.Area, obj.Status, obj.ListingID)),
+				Bucket: aws.String(bucketName),
+				Key:    aws.String(fileName),
 				Body:   bytes.NewReader(jsonBytes),
 			})
 			if err != nil {
-				fmt.Printf("Error uploading %s.json to S3: %v\n", obj.ListingID, err)
+				log.Error().Err(err).Msgf("Error uploading %s.json to S3: %v", obj.ListingID, err)
 				return
 			}
 
-			fmt.Printf("Uploaded %s.json to S3\n", obj.ListingID)
+			log.Info().Msgf("Uploaded %s to S3", fileName)
 		}(listing)
 	}
 
 	wg.Wait()
 
-	fmt.Println("All uploads complete")
+	log.Info().Msgf("All listings have been uploaded to S3 bucket: %s", bucketName)
 
 	return nil
 }
