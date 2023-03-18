@@ -88,7 +88,11 @@ func main() {
 		return
 	}
 
-	_ = viper.BindEnv("lambda_environment")
+	err = viper.BindEnv("lambda_environment")
+	if err != nil {
+		log.Error().Err(err).Msg("could not bind environment variable")
+		return
+	}
 
 	bucketName := fmt.Sprintf("property-scraping-%s-listing-upload", viper.GetString("lambda_environment"))
 	listingOptions := &goopla.ListingOptions{Area: "Oxford", Minimum_beds: 2, Maximum_beds: 2, Order_by: "age", Page_size: 10}
