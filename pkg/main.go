@@ -82,15 +82,15 @@ func main() {
 	}
 	s3Session := s3.New(awsSession)
 
-	client, err := goopla.NewClient(goopla.Credentials{}, goopla.FromEnv)
-	if err != nil {
-		log.Error().Err(err).Msg("error creating Goopla client")
-		return
-	}
-
 	err = viper.BindEnv("lambda_environment")
 	if err != nil {
 		log.Error().Err(err).Msg("could not bind environment variable")
+		return
+	}
+
+	client, err := goopla.NewClient(goopla.Credentials{}, goopla.FromEnv)
+	if err != nil {
+		log.Error().Err(err).Msg("error creating Goopla client")
 		return
 	}
 
