@@ -29,7 +29,7 @@ jobs:
     needs: files-changed
     strategy:
       matrix:
-        package ${{ fromJSON(needs.files-changed.outputs.packages) }}
+        package: ${{ fromJSON(needs.files-changed.outputs.packages) }}
     runs-on: ubuntu-latest
     name: Deployment
     steps:
