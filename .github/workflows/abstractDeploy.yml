@@ -27,6 +27,7 @@ jobs:
             dynamodb-pusher: src/dynamodb-pusher
   build:
     needs: files-changed
+    if: ${{ needs.files-changed.outputs.packages != '' && toJson(fromJson(needs.files-changed.outputs.packages)) != '[]' }}
     strategy:
       matrix:
         package: ${{ fromJSON(needs.files-changed.outputs.packages) }}
