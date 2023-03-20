@@ -14,7 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     outputs:
-      outputs:
         packages: ${{ steps.filter.outputs.changes }}
     steps:
       - uses: actions/checkout@master
