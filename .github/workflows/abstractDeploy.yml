@@ -9,7 +9,28 @@ on:
         type: string
         required: true
 jobs:
+  files-changed:
+    name: Detect what files changed
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    outputs:
+      outputs:
+        packages: ${{ steps.filter.outputs.changes }}
+    steps:
+      - uses: actions/checkout@master
+      - name: Check for file changes
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          token: ${{ github.token }}
+          filters: | 
+            listing-getter: src/listing-getter
+            dynamodb-pusher: src/dynamodb-pusher
   build:
+    needs: files-changed
+    strategy:
+      matrix:
+        package ${{ fromJSON(needs.files-changed.outputs.packages) }}
     runs-on: ubuntu-latest
     name: Deployment
     steps:
@@ -22,7 +43,7 @@ jobs:
           check-latest: true
       - name: Build binary
         run: |
-          cd pkg && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -a -o main main.go && zip listing-getter.zip main
+          cd src/${{ matrix.package }} && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -a -o main main.go && zip ${{ matrix.package }}.zip main
       - name: Configure credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -30,7 +51,7 @@ jobs:
           aws-region: "eu-west-2"
       - name: Upload lambda code to s3
         run: |
-          aws s3 cp ./pkg/listing-getter.zip s3://property-scraping-development-lambda-code
+          aws s3 cp ./src/${{ matrix.package }}/${{ matrix.package }}.zip s3://property-scraping-development-lambda-code
       - name: Publish lambda function
         run: |
-          aws lambda update-function-code --function-name listing-getter --s3-bucket property-scraping-${{ inputs.stage }}-lambda-code --s3-key listing-getter.zip --publish | jq 'del(.Environment)'
+          aws lambda update-function-code --function-name ${{ matrix.package }} --s3-bucket property-scraping-${{ inputs.stage }}-lambda-code --s3-key ${{ matrix.package }}.zip --publish | jq 'del(.Environment)'
