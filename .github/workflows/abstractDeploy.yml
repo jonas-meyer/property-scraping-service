@@ -8,29 +8,15 @@ on:
       stage:
         type: string
         required: true
+      packages:
+        type: string
+        required: true
 jobs:
-  files-changed:
-    name: Detect what files changed
-    runs-on: ubuntu-latest
-    timeout-minutes: 3
-    outputs:
-        packages: ${{ steps.filter.outputs.changes }}
-    steps:
-      - uses: actions/checkout@master
-      - name: Check for file changes
-        uses: dorny/paths-filter@v2
-        id: filter
-        with:
-          token: ${{ github.token }}
-          filters: | 
-            listing-getter: src/listing-getter
-            dynamodb-pusher: src/dynamodb-pusher
   build:
-    needs: files-changed
-    if: ${{ needs.files-changed.outputs.packages != '' && toJson(fromJson(needs.files-changed.outputs.packages)) != '[]' }}
+    if: ${{ inputs.packages != '' && toJson(fromJson(inputs.packages)) != '[]' }}
     strategy:
       matrix:
-        package: ${{ fromJSON(needs.files-changed.outputs.packages) }}
+        package: ${{ fromJSON(inputs.packages) }}
     runs-on: ubuntu-latest
     name: Deployment
     steps:

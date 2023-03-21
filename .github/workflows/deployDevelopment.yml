@@ -7,8 +7,26 @@ on:
     branches:
       - main
 jobs:
+  files-changed:
+    name: Detect what files changed
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    outputs:
+      packages: ${{ steps.filter.outputs.changes }}
+    steps:
+      - uses: actions/checkout@master
+      - name: Check for file changes
+        uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          token: ${{ github.token }}
+          filters: |
+            listing-getter: src/listing-getter
+            dynamodb-pusher: src/dynamodb-pusher
   deploy-to-development:
+    needs: files-changed
     uses: ./.github/workflows/abstractDeploy.yml
     with:
       stage: development
+      packages: $ {{ needs.files-changed.outputs.packages }}
     secrets: inherit

@@ -8,4 +8,5 @@ jobs:
     uses: ./.github/workflows/abstractDeploy.yml
     with:
       stage: production
+      packages: '["listing-getter", "dynamodb-pusher"]'
     secrets: inherit
