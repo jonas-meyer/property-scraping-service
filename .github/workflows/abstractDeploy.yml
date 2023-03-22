@@ -14,8 +14,10 @@ on:
 jobs:
   test-debug:
     runs-on: ubuntu-latest
-    run: |
-      echo ${{ inputs.packages }}
+    steps:
+      - name: debug
+        run: |
+          echo ${{ inputs.packages }}
   build:
     if: ${{ inputs.packages != '[]' && inputs.packages != '' }}
     strategy:
