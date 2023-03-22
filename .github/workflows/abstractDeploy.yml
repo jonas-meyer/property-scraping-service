@@ -12,6 +12,10 @@ on:
         type: string
         required: true
 jobs:
+  test-debug:
+    runs-on: ubuntu-latest
+    run: |
+      echo ${{ inputs.packages }}
   build:
     if: ${{ inputs.packages != '[]' && inputs.packages != '' }}
     strategy:
