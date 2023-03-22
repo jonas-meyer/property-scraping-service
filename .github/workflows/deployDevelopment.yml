@@ -28,5 +28,5 @@ jobs:
     uses: ./.github/workflows/abstractDeploy.yml
     with:
       stage: development
-      packages: $ {{ toJSON(needs.files-changed.outputs.packages) }}
+      packages: $ {{ needs.files-changed.outputs.packages }}
     secrets: inherit
