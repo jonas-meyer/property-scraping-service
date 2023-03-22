@@ -12,14 +12,8 @@ on:
         type: string
         required: true
 jobs:
-  test-debug:
-    runs-on: ubuntu-latest
-    steps:
-      - name: debug
-        run: |
-          echo ${{ inputs.packages }}
   build:
-    if: ${{ inputs.packages != '[]' && inputs.packages != '' }}
+    if: ${{ inputs.packages != '' && toJson(fromJson(inputs.packages)) != '[]' }}
     strategy:
       matrix:
         package: ${{ fromJSON(inputs.packages) }}
