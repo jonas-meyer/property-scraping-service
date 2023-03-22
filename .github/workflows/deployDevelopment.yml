@@ -23,12 +23,6 @@ jobs:
           filters: |
             listing-getter: src/listing-getter
             dynamodb-pusher: src/dynamodb-pusher
-  debug-output:
-    runs-on: ubuntu-latest
-    needs: files-changed
-    steps:
-      - run: | 
-          echo $ {{ needs.files-changed.outputs.packages }}
   deploy-to-development:
     needs: files-changed
     uses: ./.github/workflows/abstractDeploy.yml
