@@ -74,7 +74,7 @@ func handler(ctx context.Context, s3Client s3.S3, gooplaClient goopla.Client, bu
 
 func main() {
 	awsSession, err := session.NewSession(&aws.Config{
-		Region: aws.String("eu-west-2"),
+		Region: aws.String(os.Getenv("AWS_REGION")),
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("error initializing AWS session")
